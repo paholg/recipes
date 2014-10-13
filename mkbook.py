@@ -26,7 +26,7 @@ Format:
   The first line should be the recipe name.
   Then, list steps as follows:
     List the instructions for a step, then an '&' to begin listing ingredients.
-    When finished with a step, use a '^', with each separating character on its own line.
+    When finished with a step, use a '&&&', with each separating character on its own line.
 Recipe files should end in .rec
 """)
 
@@ -42,15 +42,15 @@ def translate(filename):
     body = ""
     mid_step = False
     for line in recipe[1:]:
-        if '^' in line or '&' in line:
+        if '&' in line:
             mid_step = False
         else:
             if mid_step:
                 body += '\\newline\n'
             mid_step = True
 
-        if '^' in line:
-            line = line.replace('^', r'\\\hline')
+        if '&&&' in line:
+            line = line.replace('&&&', r'\\\hline')
         body += line + '\n'
 
 
@@ -60,7 +60,7 @@ def translate(filename):
 
 
 if len(sys.argv) == 1 or (len(sys.argv) == 2 and 'toc' in sys.argv):
-    files = sorted(glob.glob("*.tex"))
+    files = sorted(glob.glob("*.rec"))
 
 else:
     files = sys.argv[1:]
