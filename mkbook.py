@@ -87,7 +87,6 @@ subprocess.call(['pdflatex', 'recipe-book'])
 subprocess.call(['pdflatex', 'recipe-book'])
 subprocess.call(['pdflatex', 'recipe-book'])
 
-# toclean = ["recipe-book."+ext for ext in ["aux", "log", "tex"]]
-# for f in toclean:
-#     if os.path.exists(f):
-#         os.remove(f)
+for f in glob.glob("recipe-book.*"):
+    if not "recipe-book.pdf" in f:
+        os.remove(f)
