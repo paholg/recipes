@@ -1,6 +1,17 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import glob
 import sys, subprocess, os
+import argparse
+
+files = sorted(glob.glob("recipes/*"))
+names = [f.split("/")[-1] for f in files]
+
+parser = argparse.ArgumentParser(description="Create a nicely formatted recipe book.")
+parser.add_argument("--toc", action='store_true', help="Include table of contents")
+parser.add_argument("--recipes", metavar='recipes', type=str, help="List of recipe file names", choices=names)
+
+args = parser.parse_args()
+
 begin = r"""
 \documentclass[letterpaper,12pt]{article}
 
@@ -15,20 +26,6 @@ begin = r"""
 \newcounter{rowcount}
 
 """
-
-print(
-"""
-Run with no arguments to make a full recipe book.
-Run with "toc" as an argument to add a table of contents.
-Run with a list of .tex files to use just those recipes.
-See the included recipes for a formatting example to add more recipes.
-Format:
-  The first line should be the recipe name.
-  Then, list steps as follows:
-    List the instructions for a step, then an '&' to begin listing ingredients.
-    When finished with a step, use a '&&&', with each separating character on its own line.
-Recipe files should end in .rec
-""")
 
 # takes recipe files and turns them into latex
 def translate(filename):
@@ -59,19 +56,17 @@ def translate(filename):
 
 
 
-if len(sys.argv) == 1 or (len(sys.argv) == 2 and 'toc' in sys.argv):
-    files = sorted(glob.glob("*.rec"))
+recipes = names if args.recipes is None else args.recipes
 
-else:
-    files = sys.argv[1:]
+files = ["recipes/"+r for r in recipes]
 
-if len(sys.argv) > 1 and 'toc' in sys.argv:
+if args.toc:
     begin += "\\tableofcontents\n"
 
-toremove = ['recipe-book.tex', 'toc']
-for remove in toremove:
-    if remove in files:
-        files.remove(remove)
+# toremove = ['recipe-book.tex', 'toc']
+# for remove in toremove:
+#     if remove in files:
+#         files.remove(remove)
 
 end = "\\end{document}"
 
@@ -91,3 +86,8 @@ f.flush()
 subprocess.call(['pdflatex', 'recipe-book'])
 subprocess.call(['pdflatex', 'recipe-book'])
 subprocess.call(['pdflatex', 'recipe-book'])
+
+# toclean = ["recipe-book."+ext for ext in ["aux", "log", "tex"]]
+# for f in toclean:
+#     if os.path.exists(f):
+#         os.remove(f)
